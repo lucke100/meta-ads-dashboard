@@ -25,13 +25,17 @@ export default function SettingsPage() {
     }
   }, [user]);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!name.trim()) {
       setProfileMsg({ type: 'error', text: 'O nome não pode estar vazio.' });
       return;
     }
-    updateProfile(name.trim());
-    setProfileMsg({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+    const result = await updateProfile(name.trim());
+    if (result.success) {
+      setProfileMsg({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+    } else {
+      setProfileMsg({ type: 'error', text: result.error || 'Erro ao atualizar perfil.' });
+    }
     setTimeout(() => setProfileMsg(null), 3000);
   };
 
