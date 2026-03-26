@@ -20,3 +20,22 @@ export async function verifyJwt(token: string) {
     return null;
   }
 }
+
+import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
+
+export function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('hex');
+  const hashedBuffer = scryptSync(password, salt, 64);
+  return `${salt}:${hashedBuffer.toString('hex')}`;
+}
+
+export function verifyPassword(password: string, storedHash: string): boolean {
+  try {
+    const [salt, key] = storedHash.split(':');
+    const hashedBuffer = scryptSync(password, salt, 64);
+    const keyBuffer = Buffer.from(key, 'hex');
+    return timingSafeEqual(hashedBuffer, keyBuffer);
+  } catch (err) {
+    return false;
+  }
+}

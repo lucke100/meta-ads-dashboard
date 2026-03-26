@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { signJwt } from '@/lib/auth-utils';
+import { signJwt, verifyPassword } from '@/lib/auth-utils';
 import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     // Verifica a senha
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = verifyPassword(password, user.password);
     if (!isValid) {
       return NextResponse.json({ success: false, error: 'Credenciais inválidas.' }, { status: 401 });
     }

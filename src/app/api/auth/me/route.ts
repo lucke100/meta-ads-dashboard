@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { verifyJwt } from '@/lib/auth-utils';
+import { verifyJwt, hashPassword, verifyPassword } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
 export async function GET() {
@@ -41,9 +40,9 @@ export async function PUT(req: Request) {
     if (name) dataToUpdate.name = name;
 
     if (newPassword && currentPassword) {
-      const isValid = await bcrypt.compare(currentPassword, user.password);
+      const isValid = verifyPassword(currentPassword, user.password);
       if (!isValid) return NextResponse.json({ success: false, error: 'Senha atual incorreta' }, { status: 400 });
-      dataToUpdate.password = await bcrypt.hash(newPassword, 10);
+      dataToUpdate.password = hashPassword(newPassword);
     }
 
     const updatedUser = await prisma.user.update({
